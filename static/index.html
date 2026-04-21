@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>QR Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f7;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #111827;
+      padding: 16px 24px;
+      color: white;
+      font-size: 20px;
+    }
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 12px;
+    }
+    .card {
+      background: #ffffff;
+      padding: 16px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .event-card {
+      border: 1px solid #ddd;
+      padding: 12px;
+      border-radius: 10px;
+      background: white;
+    }
+    img {
+      max-width: 130px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-top: 10px;
+    }
+    .small {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+
+</head>
+<body>
+
+<header>QR Code Generator Dashboard</header>
+
+<div class="container">
+
+  <div class="card">
+    <h3>Create New QR Code</h3>
+    <form id="createForm">
+      <label>Event Name</label>
+      <input type="text" id="name" placeholder="Example: Feedback Form" required>
+
+      <label>Target URL</label>
+      <input type="text" id="url" placeholder="https://example.com" required>
+
+      <button type="submit">Generate QR</button>
+      <p id="status" class="small"></p>
+    </form>
+  </div>
+
+  <div class="card">
+    <h3>All QR Codes</h3>
+    <button onclick="loadEvents()">Refresh</button>
+    <div id="events" class="events-grid"></div>
+  </div>
+
+</div>
+
+<script>
+  async function loadEvents() {
+    const eventsDiv = document.getElementById("events");
+    eventsDiv.innerHTML = "Loading...";
+
+    const response = await fetch("/api/events");
+    const data = await response.json();
+
+    eventsDiv.innerHTML = "";
+
+    data.forEach(ev => {
+      const card = document.createElement("div");
+      card.className = "event-card";
+
+      const qrPath = `/static/qrcodes/${ev.code}.png`;
+      const visitUrl = `${window.location.origin}/q/${ev.code}`;
+
+      card.innerHTML = `
+        <h4>${ev.name}</h4>
+        <p class="small">Scans: ${ev.scan_count}</p>
+        <img src="${qrPath}" alt="QR Code">
+        <p class="small">Scan URL: <br><a href="${visitUrl}" target="_blank">${visitUrl}</a></p>
+        <p class="small">Target: <br><a href="${ev.target_url}" target="_blank">${ev.target_url}</a></p>
+      `;
+
+      eventsDiv.appendChild(card);
+    });
+  }
+
+  document.getElementById("createForm").addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const name = document.getElementById("name").value;
+    const url = document.getElementById("url").value;
+
+    const status = document.getElementById("status");
+    status.innerText = "Creating QR...";
+
+    const response = await fetch("/api/events", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ name, target_url: url })
+    });
+
+    if (response.ok) {
+      status.innerText = "QR Created Successfully!";
+      loadEvents();
+    } else {
+      status.innerText = "Error creating QR.";
+    }
+  });
+
+  loadEvents();
+</script>
+
+</body>
+</html>
