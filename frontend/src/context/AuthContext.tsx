@@ -8,10 +8,10 @@ import {
   type ReactNode,
 } from 'react'
 import axios from 'axios'
-import { api } from '../api/client'
+import { API_BASE_URL, api } from '../api/client'
 import type { User } from '../types/api'
 
-const base = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const base = API_BASE_URL
 
 type AuthContextValue = {
   user: User | null
@@ -118,3 +118,4 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }
+

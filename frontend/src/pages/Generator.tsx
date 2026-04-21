@@ -10,7 +10,7 @@ import {
 import { assetUrl } from '../lib/url'
 import type { QRCodeRow } from '../types/api'
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const apiBase = import.meta.env.VITE_API_URL || window.location.origin
 
 export function Generator() {
   const [displayName, setDisplayName] = useState('Launch campaign')
@@ -285,3 +285,4 @@ export function Generator() {
     </div>
   )
 }
+

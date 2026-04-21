@@ -5,7 +5,7 @@ import QRCode from 'qrcode'
 import { buildEmbedForPreview } from '../lib/qrPayload'
 import { useAuth } from '../context/AuthContext'
 
-const apiBase = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const apiBase = import.meta.env.VITE_API_URL || window.location.origin
 
 export function Landing() {
   const { user } = useAuth()
@@ -127,3 +127,4 @@ export function Landing() {
     </div>
   )
 }
+

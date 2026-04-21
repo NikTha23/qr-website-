@@ -1,18 +1,35 @@
-# Render Blueprint — deploy the FastAPI backend as a Web Service.
-# Connect your GitHub repo in the Render dashboard, or use "Blueprint" with this file.
-# Set environment variables in the dashboard (SECRET_KEY, DATABASE_URL, CORS_ORIGINS, etc.).
-
 services:
   - type: web
     name: qr-studio-api
     runtime: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker -w 3 -b 0.0.0.0:$PORT app.main:app
+    healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
-        value: "3.12.0"
+        value: 3.12.0
       - key: ENVIRONMENT
         value: production
-      # Add in dashboard (do not commit real values):
-      # SECRET_KEY, DATABASE_URL, PUBLIC_BASE_URL, CORS_ORIGINS, REDIS_URL (optional)
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: CORS_ALLOW_CREDENTIALS
+        value: "true"
+      - key: REDIS_URL
+        sync: false
+
+  - type: static_site
+    name: qr-studio-frontend
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    pullRequestPreviewsEnabled: true
+    envVars:
+      - key: VITE_API_URL
+        sync: false

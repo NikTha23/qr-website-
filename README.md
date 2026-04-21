@@ -1,4 +1,4 @@
-# QR Studio â€” Full-stack QR SaaS
+# QR Studio — Full-stack QR SaaS
 
 Professional QR code generator with **React + Tailwind + Framer Motion** frontend and **FastAPI** backend: static and dynamic (tracked) codes, JWT auth, PostgreSQL/SQLite, scan analytics, rate limiting, and deployment-ready layout.
 
@@ -43,7 +43,7 @@ Set **`PUBLIC_BASE_URL`** in `.env` to the URL users will scan (e.g. your Render
 ```bash
 cd frontend
 npm install
-copy .env.example .env          # optional: VITE_API_URL=http://127.0.0.1:8000
+copy .env.example .env
 
 npm run dev
 ```
@@ -67,21 +67,21 @@ SQLite (`sqlite:///./qr_saas.db`) is fine for local development.
 
 ## Deployment
 
-### Frontend â€” Vercel
+### Frontend — Render Static Site / Vercel
 
 1. Root directory: `frontend`
-2. Build command: `npm run build`
+2. Build command: `npm ci && npm run build`
 3. Output directory: `dist`
-4. Environment variable: `VITE_API_URL=https://your-api.example.com` (no trailing slash)
+4. Environment variable: `VITE_API_URL=https://your-api.example.com` (required in production build)
 
-### Backend â€” Render / Railway
+### Backend — Render / Railway
 
 1. Root directory: `backend`
-2. Start command: `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+2. Start command: `gunicorn -k uvicorn.workers.UvicornWorker -w 3 -b 0.0.0.0:$PORT app.main:app`
 3. Set environment variables from `backend/.env.example` plus `DATABASE_URL` and a strong `SECRET_KEY`
 4. Ensure `PUBLIC_BASE_URL` is your public API URL (HTTPS)
 
-### Database â€” Supabase / managed PostgreSQL
+### Database — Supabase / managed PostgreSQL
 
 Create a Postgres database and paste the connection string into `DATABASE_URL` using the `postgresql+psycopg2://` form.
 
